@@ -1,0 +1,23 @@
+@startuml
+title Warmhouse Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(SmartHomeAppBoundary, "SmartHome Application", "Go") {
+  Component(SensorsHandler, "SensorsHandler", "Gin HTTP Handler","Управляет запросами к сенсорам")
+  Component(TemperatureService, "Temperature Service", "Go", "Получает данные температуры")
+  Component(RepositoryLayer, "Repository Layer", "Слой доступа к данным")
+}
+
+' --- Внешние системы, с которыми SmartHomeApp взаимодействует ---
+Container(TemperatureApp, "Temperature Application", "Python, Flask", "Сервис данных о температуре")
+Container(Database, "Database", "PostgreSQL", "Хранит информацию о датчиках")
+
+Rel(SensorsHandler, RepositoryLayer, "CRUD операции с сенсорами", "SQL")
+Rel(SensorsHandler, TemperatureService, "Получение данных о температуре", "Go call")
+Rel(TemperatureService, TemperatureApp, "REST запрос к Python-сервису", "HTTP")
+Rel(RepositoryLayer, Database, "Чтение / запись данных", "SQL")
+@enduml

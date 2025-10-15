@@ -1,0 +1,26 @@
+@startuml
+title Auth Service - Component Diagram (Go microservice style)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(authBoundary, "Auth Service", "Go/Java") {
+
+    Component(userController, "UserController", "REST API", "Регистрация новых пользователей")
+    Component(authController, "AuthController", "REST API", "Логин/аутентификация пользователей")
+    Component(userService, "UserService", "Java/Go", "Бизнес-логика работы с пользователями")
+    Component(authenticationService, "AuthenticationService", "Java/Go", "Аутентификация и генерация JWT")
+    Component(userRepository, "UserRepository", "DB Access Layer", "Доступ к таблице пользователей")
+    Component(jwtTokenUtil, "JwtTokenUtil", "Utility", "Генерация и валидация JWT токенов")
+
+    Rel(userController, userService, "Вызывает бизнес-методы создания пользователя")
+    Rel(authController, authenticationService, "Вызывает методы аутентификации и генерации токена")
+    Rel(userService, userRepository, "Чтение/запись данных пользователей")
+    Rel(authenticationService, userRepository, "Получение данных для аутентификации")
+    Rel(authenticationService, jwtTokenUtil, "Генерация JWT токена")
+}
+
+Container(database, "DB", "PostgreSQL", "Хранение информации о пользователях")
+
+Rel(userRepository, database, "Чтение/запись данных пользователей")
+
+@enduml

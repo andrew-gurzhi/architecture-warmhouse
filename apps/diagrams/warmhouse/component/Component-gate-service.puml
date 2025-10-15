@@ -1,0 +1,26 @@
+@startuml
+title Gate Service - Component Diagram (Go microservice)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(gateBoundary, "Gate Service", "Go") {
+
+    Component(gateController, "GateController", "REST API", "Обрабатывает HTTP-запросы и возвращает данные по воротам")
+    Component(gateService, "GateService", "Go", "Бизнес-логика управления воротами")
+    Component(gateRepository, "GateRepository", "Go", "Слой доступа к БД")
+    Component(messageSendingService, "MessageSendingService", "Go", "Сервис отправки сообщений в кафку")
+
+
+    Rel(gateController, gateService, "Вызывает бизнес методы для получения/обновления данных")
+    Rel(gateService, gateRepository, "Вызывает методы доступа к БД")
+    Rel(gateService, messageSendingService, "Вызывает методы отправки сообщений о состоянии ворот")
+
+}
+
+Container(database, "DB", "PostgreSQL", "База данных (schema = gate)")
+Container(kafka,  "Message Broker", "Kafka", "Событийное взаимодействие между сервисами")
+
+Rel(messageSendingService, kafka, "Публикует события о состоянии ворот")
+Rel(gateRepository, database, "Чтение/запись данных из БД")
+
+@enduml

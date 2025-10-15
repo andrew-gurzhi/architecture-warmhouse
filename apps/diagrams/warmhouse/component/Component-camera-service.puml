@@ -1,0 +1,29 @@
+@startuml
+title Camera Service - Component Diagram (Go microservice + gRPC Streaming)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(cameraBoundary, "Camera Service", "Go") {
+
+    Component(cameraStreamController, "CameraStreamController", "gRPC Streaming API",  "Обрабатывает стриминг видео камер")
+    Component(cameraControlController, "CameraControlController", "REST API",              "Обрабатывает команды управления камерами (вкл/выкл, поворот, настройки)")
+    Component(cameraService, "CameraService", "Go", "Обработка потоков, управление камерой, интеграция с Kafka")
+    Component(cameraRepository, "CameraRepository", "Go", "Слой доступа к базе данных camera_schema")
+    Component(messageSendingService, "MessageSendingService", "Go", "Публикация событий о камерах )")
+
+    Rel(cameraStreamController, cameraService, "Передает видеопоток и телеметрию")
+    Rel(cameraControlController, cameraService, "Вызывает бизнес-методы управления камерой")
+    Rel(cameraService, cameraRepository, "Чтение/запись данных о камерах")
+    Rel(cameraService, messageSendingService, "Отправка событий о камерах")
+}
+
+Container(database, "DB", "PostgreSQL", "База данных (schema = camera)")
+Container(kafka,  "Message Broker", "Kafka", "Событийное взаимодействие между сервисами")
+System_Ext(sensors, "Smart Devices / Cameras", "Физические камеры и датчики")
+
+Rel(cameraRepository, database, "Чтение/запись данных из БД")
+Rel(messageSendingService, kafka, "Публикует события видеонаблюдения")
+Rel(cameraStreamController, sensors, "Получение видеопотока и телеметрии", "gRPC Streaming")
+Rel(cameraControlController, sensors, "Команды управления камерой", "REST/HTTP")
+
+@enduml

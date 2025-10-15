@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: Camera Service API
+  version: 1.1.0
+paths:
+  /cameras:
+    post:
+      summary: Зарегистрировать новую камеру
+      description: Добавляет камеру в систему
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                homeId:
+                  type: string
+                name:
+                  type: string
+                location:
+                  type: string
+      responses:
+        '201':
+          description: Камера зарегистрирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+        '400':
+          description: Ошибка валидации
+
+    get:
+      summary: Получить список камер в доме
+      parameters:
+        - name: homeId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список камер
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Camera'
+
+  /cameras/{cameraId}:
+    get:
+      summary: Получить информацию о камере
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные камеры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+
+    delete:
+      summary: Удалить камеру
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Камера удалена
+        '404':
+          description: Камера не найдена
+
+  /cameras/{cameraId}/control:
+    post:
+      summary: Управление камерой
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                power:
+                  type: boolean
+                rotation:
+                  type: integer
+                brightness:
+                  type: integer
+      responses:
+        '200':
+          description: Камера обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+
+components:
+  schemas:
+    Camera:
+      type: object
+      properties:
+        id:
+          type: string
+        homeId:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        status:
+          type: string

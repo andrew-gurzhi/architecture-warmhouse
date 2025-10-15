@@ -1,0 +1,61 @@
+@startuml
+title Warmhouse To-Be Container Diagram (Go + gRPC Streaming for Cameras)
+
+top to bottom direction
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "Владелец домов, управляет устройствами через web/mobile")
+Person(admin, "Administrator", "Администратор системы")
+
+System_Boundary(warmhouse, "Warmhouse Ecosystem") {
+  Container(gatewayProxy, "ProxyHandler", "Nginx", "Входной сервер, балансировка нагрузки, tls termination")
+  Container(apiGateway, "API Gateway", "Nginx", "Единая точка входа для всех запросов")
+  Container(authService, "Auth-Service", "Go ", "Аутентификация, авторизация, хранение пользователей и ролей")
+  Container(coreService, "SmartHome Core", "Go", "Агрегированная информация о домах, пользователях, устройствах")
+  Container(heatingService, "Heating Service", "Go", "Управление отоплением")
+  Container(lightingService, "Lighting Service", "Go", "Управление освещением")
+  Container(cameraService, "Camera Service", "Go", "Сервис наблюдения, потоковая передача видео через gRPC Streaming")
+  Container(gatesService, "Gates Service", "Go", "Управление воротами")
+  Container(databaseCluster, "PostgreSQL Cluster", "PostgreSQL", "Общий кластер БД с отдельными схемами")
+  Container(kafka,  "Message Broker", "Kafka", "Событийное взаимодействие между сервисами")
+}
+
+System_Ext(sensors, "Smart Devices / Sensors", "Физические устройства, датчики")
+
+' Пользовательский и админский доступ
+Rel(user, gatewayProxy, "HTTP/HTTPS запросы (Web/Mobile)", "REST/JSON")
+Rel(admin, gatewayProxy, "HTTP/HTTPS запросы (Admin UI)", "REST/JSON")
+
+' API Gateway проксирует запросы
+Rel(gatewayProxy, apiGateway, "Проксирование запросов")
+Rel(apiGateway, authService, "Запросы аутентификации / авторизации")
+Rel(apiGateway, coreService, "Бизнес-запросы SmartHome API")
+Rel(apiGateway, heatingService, "REST проксирование")
+Rel(apiGateway, lightingService, "REST проксирование")
+Rel(apiGateway, cameraService, "REST/gRPC streaming проксирование")
+Rel(apiGateway, gatesService, "REST проксирование")
+
+' CoreService хранит агрегированную информацию
+Rel(coreService, databaseCluster, "core_schema: дома, пользователи, агрегированная информация")
+
+' Сервисы управляют своими данными в отдельных схемах
+Rel(heatingService, databaseCluster, "heating_schema: состояние отопления, логи, сценарии")
+Rel(lightingService, databaseCluster, "lighting_schema: состояние света, сценарии, логи")
+Rel(cameraService, databaseCluster, "camera_schema: телеметрия, события, метаданные")
+Rel(gatesService, databaseCluster, "gates_schema: состояние ворот, лог действий, сценарии")
+Rel(authService, databaseCluster, "user_schema: пользователи и пароли]")
+
+' События через Kafka
+Rel(heatingService, kafka, "Публикует события о состоянии отопления")
+Rel(lightingService, kafka, "Публикует события об освещении")
+Rel(cameraService, kafka, "Публикует события видеонаблюдения")
+Rel(gatesService, kafka, "Публикует события управления воротами")
+Rel(kafka, coreService, "CoreService слушает события и обновляет агрегированную информацию")
+
+' Сервисы взаимодействуют с физическими устройствами
+Rel(heatingService, sensors, "Запросы к физическим устройствам", "REST/HTTP")
+Rel(lightingService, sensors, "Запросы к устройствам", "REST/HTTP")
+Rel(cameraService, sensors, "Передача видеопотока / телеметрии", "gRPC Streaming")
+Rel(gatesService, sensors, "Запросы управления воротами", "REST/HTTP")
+
+@enduml

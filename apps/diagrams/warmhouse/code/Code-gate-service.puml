@@ -1,0 +1,59 @@
+@startuml
+title Gate Service - Code Diagram (Go microservice)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class GateController {
+    +RegisterGate(userId: string, gateData: GateInput)
+    +DeleteGate(userId: string, gateId: string)
+    +OpenGate(userId: string, gateId: string)
+    +CloseGate(userId: string, gateId: string)
+    +GetGateStatus(userId: string, gateId: string)
+}
+
+class GateService {
+    +registerGate(userId: string, gateData: GateInput)
+    +deleteGate(userId: string, gateId: string)
+    +openGate(userId: string, gateId: string)
+    +closeGate(userId: string, gateId: string)
+    +getGateStatus(userId: string, gateId: string)
+}
+
+class GateRepository {
+    +findById(gateId: string): Gate
+    +save(gate: Gate)
+    +delete(gateId: string)
+}
+
+class DeviceStatePublisher {
+    +publishDeviceState(device: DeviceStateEvent)
+}
+
+class Gate {
+    -id: string
+    -ownerId: string
+    -status: string
+    -name: string
+    -homeId: string
+}
+
+class GateInput {
+    +name: string
+    +homeId: string
+}
+
+class DeviceStateEvent {
+    +device_id: string
+    +home_id: string
+    +device_name: string
+    +device_type: string
+    +status: string
+    +last_updated: timestamp
+}
+
+GateController --> GateService : вызывает методы бизнес-логики
+GateService --> GateRepository : проверка, сохранение и удаление данных
+GateService --> DeviceStatePublisher : публикует состояние устройства
+GateRepository --> Gate : возвращает данные о воротах
+
+@enduml
