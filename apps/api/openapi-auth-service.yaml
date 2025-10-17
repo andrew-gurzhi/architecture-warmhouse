@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: Auth Service API
+  version: 1.0.0
+  description: Управление пользователями и аутентификация (JWT). Проверка токена выполняется через API Gateway.
+paths:
+  /users/register:
+    post:
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        '200':
+          description: ID созданного пользователя
+          content:
+            application/json:
+              schema:
+                type: string
+  /login:
+    post:
+      summary: Логин пользователя и генерация JWT
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: JWT токен пользователя
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Неверные учетные данные
+components:
+  schemas:
+    UserDto:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          format: email

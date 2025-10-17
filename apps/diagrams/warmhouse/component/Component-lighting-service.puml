@@ -1,0 +1,24 @@
+@startuml
+title Lighting Service - Component Diagram (Go microservice)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(lightingBoundary, "ligthing Service", "Go") {
+
+    Component(lightingController, "LightingController", "REST API", "Обрабатывает HTTP-запросы и возвращает данные по освещению")
+    Component(lightingService, "LightingService", "Go", "Бизнес-логика управления светом")
+    Component(lightingRepository, "LightingRepository", "Go", "Слой доступа к БД")
+    Component(messageSendingService, "MessageSendingService", "Go", "Сервис отправки сообщений в кафку")
+
+    Rel(lightingController, lightingService, "Вызывает бизнес методы для получения/обновления данных")
+    Rel(lightingService, lightingRepository, "Вызывает методы доступа к БД")
+    Rel(lightingService, messageSendingService, "Вызывает методы отправки сообщений о состоянии освещения")
+}
+
+Container(database, "DB", "PostgreSQL", "База данных (schema = lighting)")
+Container(kafka,  "Message Broker", "Kafka", "Событийное взаимодействие между сервисами")
+
+Rel(messageSendingService, kafka, "Публикует события о состоянии освещения в доме")
+Rel(lightingRepository, database, "Чтение/запись данных из БД")
+
+@enduml

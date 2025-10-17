@@ -1,0 +1,110 @@
+openapi: 3.1.0
+info:
+  title: SmartHome Core Service API
+  version: 1.0.0
+  description: API для агрегированного состояния домов и устройств пользователя
+
+paths:
+  /users/{userId}/homes:
+    get:
+      summary: Получить список домов пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список домов пользователя
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HomeSummary'
+
+  /homes/{homeId}:
+    get:
+      summary: Получить детали конкретного дома
+      parameters:
+        - name: homeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Детали дома
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeDetail'
+
+  /homes/{homeId}/overview:
+    get:
+      summary: Получить агрегированное состояние всех устройств дома
+      parameters:
+        - name: homeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Агрегированное состояние устройств дома
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeOverview'
+
+components:
+  schemas:
+    HomeSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+
+    HomeDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DeviceState:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          description: Тип устройства (heating, lighting, gate, camera)
+        status:
+          type: string
+
+    HomeOverview:
+      type: object
+      properties:
+        homeId:
+          type: string
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceState'

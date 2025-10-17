@@ -1,0 +1,18 @@
+@startuml
+title Warmhouse To-Be Context Diagram (с сервисами)
+
+top to bottom direction
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "User", "Владелец домов, управляет устройствами через Web/Mobile")
+Person(admin, "Administrator", "Администратор системы")
+
+System(warmhouse, "Warmhouse System", "Основная система управления умным домом")
+
+System_Ext(sensors, "Smart Devices / Sensors", "Физические устройства, передающие телеметрию")
+
+Rel(user, warmhouse, "Управление устройствами и просмотр состояния", "REST/JSON")
+Rel(admin, warmhouse, "Администрирование системы", "REST/JSON")
+Rel(warmhouse, sensors, "Взаимодействие с датчиками")
+
+@enduml

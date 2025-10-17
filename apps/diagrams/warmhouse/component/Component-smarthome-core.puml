@@ -1,0 +1,40 @@
+@startuml
+title SmartHome Core - Component Diagram
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(coreSystem, "SmartHome Core") {
+
+    Container(database, "DB", "PostgreSQL", "База данных(schema = core)")
+
+    Component(smarthomeController, "SmarthomeController", "REST API", "Обрабатывает HTTP-запросы от пользователя и администратора")
+    Component(smarthomeService, "SmarthomeService", "Go", "Бизнес-логика управления домом")
+    Component(eventListener, "EventListener", "Kafka Consumer", "Слушает события от Heating, Lighting, Gates, Camera сервисов")
+
+    Component(heatingProcessor, "HeatingEventProcessor", "Go", "Обработка событий отопления")
+    Component(lightingProcessor, "LightingEventProcessor", "Go", "Обработка событий освещения")
+    Component(gatesProcessor, "GatesEventProcessor", "Go", "Обработка событий ворот")
+    Component(cameraProcessor, "CameraEventProcessor", "Go", "Обработка событий камер")
+
+    Component(coreRepository, "CoreRepository", "DB Access Layer", "Доступ к core_schema в PostgreSQL")
+
+}
+
+
+Rel(smarthomeController, smarthomeService, "Вызывает методы для получения/обновления данных")
+
+Rel(eventListener, heatingProcessor, "Передает события отопления")
+Rel(eventListener, lightingProcessor, "Передает события освещения")
+Rel(eventListener, gatesProcessor, "Передает события ворот")
+Rel(eventListener, cameraProcessor, "Передает события камер")
+
+Rel(smarthomeService, coreRepository, "Чтение/запись агрегированной информации")
+
+Rel(heatingProcessor, coreRepository, "Обновление состояния отопления")
+Rel(lightingProcessor, coreRepository, "Обновление состояния освещения")
+Rel(gatesProcessor, coreRepository, "Обновление состояния ворот")
+Rel(cameraProcessor, coreRepository, "Обновление телеметрии и состояния камер")
+Rel(coreRepository, database, "Чтение/запись данных из бд")
+
+@enduml

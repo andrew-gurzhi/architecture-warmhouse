@@ -1,0 +1,390 @@
+openapi: 3.1.0
+info:
+  title: Warmhouse API Gateway
+  version: "1.0.0"
+paths:
+  /auth/login:
+    post:
+      summary: Логин пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: JWT токен
+          content:
+            application/json:
+              schema:
+                type: string
+        '401':
+          description: Неверные учетные данные
+
+  /users/register:
+    post:
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Идентификатор созданного пользователя
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /homes:
+    get:
+      summary: Получение информации о домах пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список домов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    address:
+                      type: string
+
+  /heating/status:
+    get:
+      summary: Получение статуса отопления
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Текущий статус отопления
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temperature:
+                    type: number
+                  mode:
+                    type: string
+
+  /heating/devices:
+    post:
+      summary: Зарегистрировать устройство отопления
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                deviceName:
+                  type: string
+      responses:
+        '200':
+          description: Устройство зарегистрировано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+    delete:
+      summary: Удалить устройство отопления
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deviceId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Устройство удалено
+
+  /lighting/status:
+    get:
+      summary: Получение статуса освещения
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Текущий статус освещения
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lightsOn:
+                    type: boolean
+                  brightness:
+                    type: integer
+
+  /lighting/devices:
+    post:
+      summary: Зарегистрировать устройство освещения
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                deviceName:
+                  type: string
+      responses:
+        '200':
+          description: Устройство зарегистрировано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+    delete:
+      summary: Удалить устройство освещения
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deviceId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Устройство удалено
+
+  /camera/metadata/{cameraId}:
+    get:
+      summary: Получение метаданных камеры
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Метаданные камеры
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+
+  /camera/stream/{cameraId}:
+    get:
+      summary: Получение видеопотока камеры (gRPC streaming)
+      parameters:
+        - name: cameraId
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Видеопоток (stream)
+          content:
+            application/grpc:
+              schema:
+                type: string
+                description: gRPC видеопоток
+
+  /camera/devices:
+    post:
+      summary: Зарегистрировать камеру
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cameraId:
+                  type: string
+                deviceName:
+                  type: string
+      responses:
+        '200':
+          description: Камера зарегистрирована
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cameraId:
+                    type: string
+    delete:
+      summary: Удалить камеру
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cameraId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Камера удалена
+
+  /gates/open:
+    post:
+      summary: Открытие ворот
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gateId:
+                  type: string
+      responses:
+        '200':
+          description: Ворота открыты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateStatus'
+
+  /gates/close:
+    post:
+      summary: Закрытие ворот
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gateId:
+                  type: string
+      responses:
+        '200':
+          description: Ворота закрыты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateStatus'
+
+  /gates/status/{gateId}:
+    get:
+      summary: Получить статус ворот
+      parameters:
+        - name: gateId
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Статус ворот
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateStatus'
+
+  /gates/devices:
+    post:
+      summary: Зарегистрировать устройство ворот
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gateId:
+                  type: string
+                deviceName:
+                  type: string
+      responses:
+        '200':
+          description: Устройство зарегистрировано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gateId:
+                    type: string
+    delete:
+      summary: Удалить устройство ворот
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: gateId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Устройство удалено
+
+components:
+  schemas:
+    GateStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: open

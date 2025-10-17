@@ -1,0 +1,12 @@
+@startuml
+title Warmhouse Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(TemperatureAppBoundary, "Temperature Application (Python, Flask)") {
+  Component(TemperatureController, "TemperatureHandler", "Flask HTTP Handler", "Обрабатывает запросы и возвращает температуру")
+}
+@enduml

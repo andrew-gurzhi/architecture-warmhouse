@@ -1,0 +1,79 @@
+@startuml
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+
+' --- Auth Service ---
+Table(users, "Пользователи") {
+  +id : UUID [PK]
+  username : String
+  password_hash : String
+  roles : String
+  created_at : Timestamp
+  updated_at : Timestamp
+}
+
+' --- Core Service ---
+Table(homes, "Дома") {
+  +id : UUID [PK]
+  user_id : UUID [FK -> users.id]
+  name : String
+  address : String
+  created_at : Timestamp
+  updated_at : Timestamp
+}
+
+Table(core_device_states, "Агрегированные состояния устройств") {
+  +device_id : UUID [PK]
+  home_id : UUID [FK -> homes.id]
+  device_name : String
+  device_type : String
+  status : String
+  last_updated : Timestamp
+}
+
+' --- Heating Service ---
+Table(heating_states, "Состояние отопления") {
+  +id : UUID [PK]
+  home_id : UUID [FK -> homes.id]
+  temperature_current : Float
+  temperature_target : Float
+  status : String
+  updated_at : Timestamp
+}
+
+' --- Lighting Service ---
+Table(lighting_states, "Состояние освещения") {
+  +id : UUID [PK]
+  home_id : UUID [FK -> homes.id]
+  status : String
+  brightness : Int
+  updated_at : Timestamp
+}
+
+' --- Camera Service ---
+Table(cameras, "Камеры") {
+  +id : UUID [PK]
+  home_id : UUID [FK -> homes.id]
+  name : String
+  location : String
+  status : String
+  created_at : Timestamp
+  updated_at : Timestamp
+}
+
+' --- Gates Service ---
+Table(gates, "Ворота") {
+  +id : UUID [PK]
+  home_id : UUID [FK -> homes.id]
+  status : String
+  last_action_at : Timestamp
+}
+
+' --- Связи ---
+users "1" -- "0..*" homes
+homes "1" -- "0..*" core_device_states
+homes "1" -- "0..*" heating_states
+homes "1" -- "0..*" lighting_states
+homes "1" -- "0..*" cameras
+homes "1" -- "0..*" gates
+
+@enduml

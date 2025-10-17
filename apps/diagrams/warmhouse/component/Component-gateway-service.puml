@@ -1,0 +1,35 @@
+@startuml
+title API Gateway - Component Diagram (Go microservice)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(gatewayBoundary, "API Gateway", "Go") {
+
+    Component(middlewareHandler, "MiddlewareHandler", "HTTP Middleware", "Обрабатывает входящие запросы, проверяет токен через AuthClient и передает дальше")
+
+    Component(authClient, "AuthClient", "Go client (REST)",  "Вызывает Auth-Service для проверки JWT и получения информации о пользователе")
+
+    Component(routingEngine, "RoutingEngine", "Go", "Определяет, в какой микросервис направить запрос в зависимости от пути")
+
+    Component(configManager, "ConfigManager", "Go",  "Хранит конфигурацию маршрутов, сервисов и таймаутов")
+    
+    Rel(middlewareHandler, authClient, "Проверяет JWT токен через Auth-Service")
+    Rel(middlewareHandler, routingEngine, "Передает валидированный запрос для маршрутизации")
+    Rel(routingEngine, configManager, "Использует конфигурацию маршрутов")
+}
+
+Container(authService, "Auth-Service", "Go", "Валидация токенов, управление пользователями и ролями")
+Container(coreService, "Core-Service", "Go", "Основная бизнес-логика SmartHome")
+Container(heatingService, "Heating-Service", "Go", "Управление отоплением")
+Container(cameraService, "Camera-Service", "Go", "Видеонаблюдение через gRPC Streaming")
+Container(gatesService, "Gates-Service", "Go", "Управление воротами")
+Container(lightingService, "Lighting-Service", "Go", "Управление освещением")
+
+Rel(authClient, authService, "HTTP запросы для проверки токена")
+Rel(middlewareHandler, coreService, "Проксирует запрос (REST)", "REST")
+Rel(middlewareHandler, heatingService, "Проксирует запрос (REST)", "REST")
+Rel(middlewareHandler, lightingService, "Проксирует запрос (REST)", "REST")
+Rel(middlewareHandler, cameraService, "Проксирует запрос (gRPC streaming)", "gRPC")
+Rel(middlewareHandler, gatesService, "Проксирует запрос (REST)", "REST")
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+title Heating Service - Component Diagram (Go microservice)
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(heatingBoundary, "Heating Service", "Go") {
+
+    Component(heatingController, "HeatingController", "REST API", "Обрабатывает HTTP-запросы и возвращает данные по температуре")
+    Component(heatingLogic, "HeatingService", "Go", "Бизнес-логика управления температурой")
+    Component(heatingRepository, "HeatingRepository", "Go", "Слой доступа к БД")
+    Component(messageSendingService, "MessageSendingService", "Go", "Сервис отправки сообщений в кафку")
+
+    Rel(heatingController, heatingLogic, "Вызывает бизнес методы для получения/обновления данных")
+    Rel(heatingLogic, heatingRepository, "Вызывает методы доступа к БД")
+    Rel(heatingLogic, messageSendingService, "Вызывает методы отправки сообщений о состоянии отопления")
+
+}
+
+Container(database, "DB", "PostgreSQL", "База данных (schema = heating)")
+Container(kafka,  "Message Broker", "Kafka", "Событийное взаимодействие между сервисами")
+
+Rel(heatingRepository, database, "Чтение/запись данных из БД")
+Rel(messageSendingService, kafka, "Публикует события о состоянии отопления в доме")
+
+
+@enduml

@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: Gates Service API
+  version: 1.1.0
+paths:
+  /gates:
+    post:
+      summary: Зарегистрировать новые ворота
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateCreate'
+      responses:
+        '201':
+          description: Ворота зарегистрированы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gate'
+    get:
+      summary: Получить список ворот по дому
+      parameters:
+        - name: homeId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список ворот
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gate'
+
+  /gates/{gateId}:
+    get:
+      summary: Получить информацию о воротах
+      parameters:
+        - name: gateId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные ворот
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gate'
+    delete:
+      summary: Удалить ворота
+      parameters:
+        - name: gateId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Ворота удалены
+
+  /gates/{gateId}/open:
+    post:
+      summary: Открыть ворота
+      parameters:
+        - name: gateId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ворота открыты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gate'
+
+  /gates/{gateId}/close:
+    post:
+      summary: Закрыть ворота
+      parameters:
+        - name: gateId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ворота закрыты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gate'
+
+components:
+  schemas:
+    GateCreate:
+      type: object
+      required: [homeId]
+      properties:
+        homeId:
+          type: string
+        status:
+          type: string
+
+    Gate:
+      allOf:
+        - $ref: '#/components/schemas/GateCreate'
+        - type: object
+          properties:
+            id:
+              type: string

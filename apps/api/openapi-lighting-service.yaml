@@ -1,0 +1,86 @@
+openapi: 3.1.0
+info:
+  title: Lighting Service API
+  version: 1.1.0
+paths:
+  /lighting-devices:
+    post:
+      summary: Зарегистрировать освещение
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LightingCreate'
+      responses:
+        '201':
+          description: Освещение зарегистрировано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lighting'
+    get:
+      summary: Получить список освещения по дому
+      parameters:
+        - name: homeId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lighting'
+
+  /lighting-devices/{deviceId}:
+    get:
+      summary: Получить информацию об освещении
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные устройства
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lighting'
+    delete:
+      summary: Удалить устройство освещения
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Устройство удалено
+
+components:
+  schemas:
+    LightingCreate:
+      type: object
+      required: [homeId]
+      properties:
+        homeId:
+          type: string
+        brightness:
+          type: integer
+        status:
+          type: string
+    Lighting:
+      allOf:
+        - $ref: '#/components/schemas/LightingCreate'
+        - type: object
+          properties:
+            id:
+              type: string
